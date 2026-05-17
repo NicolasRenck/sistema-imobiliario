@@ -44,14 +44,14 @@ Sistema web interno para gestão de imóveis e proprietários, desenvolvido para
 
 ## Funcionalidades
 
-- Autenticação com JWT — login, logout com blacklist de token
+- Autenticação com JWT - login, logout com blacklist de token
 - Cadastro e gestão de imóveis com múltiplas fotos
 - Cadastro e gestão de proprietários
-- Controle de status dos imóveis — à venda, suspenso, vendido
+- Controle de status dos imóveis - à venda, suspenso, vendido
 - Sincronização automática com Google Sheets ao cadastrar ou excluir imóvel
 - Upload de fotos direto para o Cloudinary
 - Filtros por status, busca por nome/endereço e ordenação
-- Relatório de vendas com métricas — total vendido, volume e média
+- Relatório de vendas com métricas - total vendido, volume e média
 - Dashboard com visão geral do portfólio
 
 ---
