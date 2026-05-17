@@ -15,7 +15,7 @@ Sistema web interno para gestão de imóveis e proprietários, desenvolvido para
 ### Imóveis
 ![Imóveis](docs/screenshots/imoveis.png)
 
-### Cadastro de imóvel
+### Tabela de imóveis cadastrados
 ![Tabela](docs/screenshots/tabela.png)
 
 ### Proprietários
