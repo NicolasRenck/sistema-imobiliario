@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Ambiente virtual
+venv/
+env/
+
+# Variáveis de ambiente e credenciais
+.env
+credentials.json
+
+# Frontend (servido separadamente)
+frontend/
+
+# Git
+.git/
+.gitignore
+
+# VSCode
+.vscode/
+
+# Migrations (opcional — remova se quiser incluir)
+# */migrations/
+
+# Logs
+*.log
+
+# Sistemas operacionais
+.DS_Store
+Thumbs.db
