@@ -1,4 +1,4 @@
-# Expert Imóveis — Sistema de Gestão
+# Expert Imóveis - Sistema de Gestão
 
 Sistema web interno para gestão de imóveis e proprietários, desenvolvido para a Expert Imóveis. Permite que corretores cadastrem, acompanhem e gerenciem o portfólio de imóveis, com sincronização automática com Google Sheets e upload de fotos via Cloudinary.
 
