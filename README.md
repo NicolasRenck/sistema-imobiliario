@@ -4,6 +4,28 @@ Sistema web interno para gestão de imóveis e proprietários, desenvolvido para
 
 ---
 
+## Screenshots
+
+### Login
+![Login](docs/screenshots/login.png)
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Imóveis
+![Imóveis](docs/screenshots/imoveis.png)
+
+### Cadastro de imóvel
+![Tabela](docs/screenshots/tabela.png)
+
+### Proprietários
+![Proprietários](docs/screenshots/proprietarios.png)
+
+### Relatório de vendas
+![Relatório](docs/screenshots/relatorio.png)
+
+---
+
 ## Tecnologias
 
 **Backend**
@@ -59,8 +81,11 @@ sistema-imobiliario/
 │   └── js/
 │       ├── api.js
 │       └── auth.js
+├── docs/
+│   └── screenshots/
 ├── credentials.json       # Google Sheets (não commitado)
 ├── .env                   # Variáveis de ambiente (não commitado)
+├── Dockerfile
 ├── requirements.txt
 └── manage.py
 ```
@@ -75,6 +100,7 @@ sistema-imobiliario/
 - Conta no Neon (ou PostgreSQL local)
 - Conta no Cloudinary
 - Conta no Google Cloud com Sheets API ativada
+- Docker (opcional)
 
 ### 1. Clone o repositório
 
@@ -141,6 +167,15 @@ Acesse `http://127.0.0.1:5500`
 
 ---
 
+## Rodando com Docker
+
+```bash
+docker build -t sistema-imobiliario .
+docker run -p 8000:8000 --env-file .env sistema-imobiliario
+```
+
+---
+
 ## Endpoints principais
 
 | Método | Endpoint | Descrição |
@@ -168,7 +203,7 @@ Acesse `http://127.0.0.1:5500`
 | `GOOGLE_SHEET_ID` | ID da planilha Google Sheets |
 
 ---
-    
+
 ## Autor
 
 **Nicolas Renck**
