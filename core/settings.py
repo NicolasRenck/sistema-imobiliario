@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-$^i9zkpq!o+(3o*=hkyt$)xgjs&640d5!bsjrd%)cu0meyflyp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [sistema-imobiliario-fv6g.onrender.com]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 GOOGLE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'credentials.json')
 GOOGLE_SHEET_ID = '1iWf-gC6y0FMaQkQMXDgem7Dzj_9FAWVwRGh6d1CPE3c'
