@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Imóveis | Relatório</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/expert-imoveis-logo.png" alt="Expert Imóveis" class="sidebar-logo-img" />
+    </div>
+    <nav>
+      <a href="dashboard.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+      <a href="imoveis.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+          <path d="M9 21V12h6v9"/>
+        </svg>
+        Imóveis
+      </a>
+      <a href="proprietarios.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Proprietários
+      </a>
+      <a href="relatorio.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 17H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2h-2"/>
+          <rect x="9" y="13" width="6" height="8" rx="1"/>
+        </svg>
+        Relatório
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        Logado como<br/>
+        <span id="sidebarUsername">—</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sair da conta</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Relatório de vendas</h1>
+      <p class="page-sub">Imóveis marcados como vendidos</p>
+    </div>
+
+    <!-- Métricas de vendas -->
+    <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 32px;">
+      <div class="metric-card">
+        <div class="metric-label">Total vendido</div>
+        <div class="metric-value" id="metricTotal">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Volume total (R$)</div>
+        <div class="metric-value metric-accent" id="metricVolume">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Média por imóvel</div>
+        <div class="metric-value" id="metricMedia">—</div>
+      </div>
+    </div>
+
+    <!-- Tabela de vendas -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">Imóveis vendidos</span>
+        <input class="search-input" type="text" id="searchInput" placeholder="Buscar por nome ou endereço..." />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Endereço</th>
+            <th>Valor (R$)</th>
+            <th>M²</th>
+            <th>Proprietário</th>
+            <th>Data de cadastro</th>
+          </tr>
+        </thead>
+        <tbody id="relatorioTable">
+          <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  checkAuth();
+
+  var todosVendidos = [];
+
+  async function carregarUsername() {
+    var res = await apiFetch('/me/');
+    if (res && res.ok) {
+      var me = await res.json();
+      document.getElementById('sidebarUsername').textContent = me.username;
+    }
+  }
+
+  async function carregarRelatorio() {
+    var res = await apiFetch('/imoveis/?status=vendido&page_size=100');
+    if (!res || !res.ok) return;
+    var data = await res.json();
+    todosVendidos = data.results || [];
+    atualizarMetricas(todosVendidos);
+    renderTabela(todosVendidos);
+  }
+
+  function atualizarMetricas(imoveis) {
+    var total = imoveis.length;
+    var volume = imoveis.reduce(function(acc, i) { return acc + parseFloat(i.preco); }, 0);
+    var media = total > 0 ? volume / total : 0;
+
+    document.getElementById('metricTotal').textContent = total;
+    document.getElementById('metricVolume').textContent = 'R$ ' + volume.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+    document.getElementById('metricMedia').textContent = 'R$ ' + media.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+  }
+
+  function renderTabela(imoveis) {
+    var tbody = document.getElementById('relatorioTable');
+    if (imoveis.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum imóvel vendido encontrado.</td></tr>';
+      return;
+    }
+    var html = '';
+    imoveis.forEach(function(i) {
+      var data = new Date(i.criado_em).toLocaleDateString('pt-BR');
+      html += '<tr>';
+      html += '<td>' + i.nome + '</td>';
+      html += '<td>' + i.endereco + '</td>';
+      html += '<td>R$ ' + parseFloat(i.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2}) + '</td>';
+      html += '<td>' + parseFloat(i.metros_quadrados).toLocaleString('pt-BR') + ' m²</td>';
+      html += '<td>' + i.proprietario_nome + '</td>';
+      html += '<td>' + data + '</td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function filtrar() {
+    var search = document.getElementById('searchInput').value.toLowerCase();
+    if (!search) {
+      renderTabela(todosVendidos);
+      atualizarMetricas(todosVendidos);
+      return;
+    }
+    var filtrados = todosVendidos.filter(function(i) {
+      return i.nome.toLowerCase().includes(search) || i.endereco.toLowerCase().includes(search);
+    });
+    renderTabela(filtrados);
+    atualizarMetricas(filtrados);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', filtrar);
+
+  carregarUsername();
+  carregarRelatorio();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expert Imóveis | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body class="login-page">
+
+    <div class="login-wrap">
+
+        <div class="login-left">
+        <div class="login-logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="20" fill="#E8491D"/>
+            <circle cx="19" cy="18" r="7" stroke="white" stroke-width="2.5" fill="none"/>
+            <line x1="24.5" y1="23.5" x2="30" y2="30" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div>
+            <div class="login-logo-text">Expert Imóveis</div>
+            <div class="login-logo-sub">Sistema interno</div>
+            </div>
+        </div>
+
+        <h1 class="login-title">Bem-vindo</h1>
+        <p class="login-sub">Acesse sua conta para continuar</p>
+
+        <form class="login-form" id="loginForm">
+            <div class="field-wrap">
+            <label class="field-label">Usuário</label>
+            <input class="field-input" type="text" id="username" placeholder="seu.usuario" required />
+            </div>
+            <div class="field-wrap">
+            <label class="field-label">Senha</label>
+            <input class="field-input" type="password" id="password" placeholder="••••••••" required />
+            </div>
+            <p class="login-error" id="loginError"></p>
+            <button class="login-btn" type="submit">Entrar</button>
+        </form>
+        </div>
+
+        <div class="login-right">
+        <div class="deco-circle deco-1"></div>
+        <div class="deco-circle deco-2"></div>
+        <div class="deco-circle deco-3"></div>
+        <h2 class="right-title">Gestão de imóveis simplificada</h2>
+        <p class="right-sub">Cadastre, acompanhe e gerencie seu portfólio em um só lugar.</p>
+        <div class="right-badge">
+            <div class="badge-dot"></div>
+            <span class="badge-text">Expert Imóveis — Novo Hamburgo</span>
+        </div>
+        </div>
+
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    </body>
+    </html>

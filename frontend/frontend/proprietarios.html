@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Imóveis | Proprietários</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    #toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2e2a26;
+      color: #fffdf9;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/expert-imoveis-logo.png" alt="Expert Imóveis" class="sidebar-logo-img" />
+    </div>
+    <nav>
+      <a href="dashboard.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+      <a href="imoveis.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+          <path d="M9 21V12h6v9"/>
+        </svg>
+        Imóveis
+      </a>
+      <a href="proprietarios.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Proprietários
+      </a>
+      <a href="relatorio.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 17H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2h-2"/>
+          <rect x="9" y="13" width="6" height="8" rx="1"/>
+        </svg>
+        Relatório
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        Logado como<br/>
+        <span id="sidebarUsername">—</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sair da conta</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Proprietários</h1>
+      <p class="page-sub">Gerencie os proprietários dos imóveis cadastrados</p>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <input class="search-input" type="text" id="searchInput" placeholder="Buscar por nome ou telefone..." />
+        <button class="btn-primary" onclick="abrirModal()">+ Novo proprietário</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Aceita troca</th>
+            <th>Descrição</th>
+            <th>Cadastrado em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="proprietariosTable">
+          <tr><td colspan="6" class="empty-state">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>
+
+<!-- Modal cadastro/edição -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 class="modal-title" id="modalTitle">Novo proprietário</h2>
+    <div class="modal-form">
+      <input type="hidden" id="propId" />
+      <div class="field-wrap">
+        <label class="field-label">Nome completo</label>
+        <input class="field-input" type="text" id="propNome" placeholder="Nome do proprietário" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Telefone</label>
+        <input class="field-input" type="text" id="propTelefone" placeholder="(51) 99999-9999" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Descrição (opcional)</label>
+        <input class="field-input" type="text" id="propDescricao" placeholder="Observações sobre o proprietário" />
+      </div>
+      <div class="field-wrap" style="flex-direction:row; align-items:center; gap:10px;">
+        <input type="checkbox" id="propAceitaTroca" style="width:16px; height:16px; accent-color:#e8491d; cursor:pointer;" />
+        <label class="field-label" for="propAceitaTroca" style="text-transform:none; font-size:13px; cursor:pointer;">Aceita troca de imóvel</label>
+      </div>
+      <p class="login-error" id="modalError"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btnCancelar" onclick="fecharModal()">Cancelar</button>
+        <button class="btn-primary" id="btnSalvar" onclick="salvarProprietario()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirmação de exclusão -->
+<div class="modal-overlay" id="deleteOverlay">
+  <div class="modal" style="width:380px; text-align:center;">
+    <div style="width:48px; height:48px; background:#FAECE7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#993C1D" stroke-width="1.8">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+        <path d="M10 11v6M14 11v6"/>
+        <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+      </svg>
+    </div>
+    <h2 class="modal-title" style="font-size:18px; margin-bottom:8px;">Excluir proprietário</h2>
+    <p style="font-size:13px; color:#8a7f74; margin-bottom:24px;">Tem certeza que deseja excluir <strong id="deleteNome"></strong>? Esta ação não pode ser desfeita.</p>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn-secondary" onclick="fecharDelete()">Cancelar</button>
+      <button class="btn-primary" id="btnConfirmarDelete" style="background:#993C1D; border-color:#993C1D;" onclick="confirmarDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  checkAuth();
+
+  var todosProprietarios = [];
+  var deleteId = null;
+
+  async function carregarUsername() {
+    var res = await apiFetch('/me/');
+    if (res && res.ok) {
+      var me = await res.json();
+      document.getElementById('sidebarUsername').textContent = me.username;
+    }
+  }
+
+  async function carregarProprietarios() {
+    var search = document.getElementById('searchInput').value;
+    var url = '/proprietarios/?page_size=100';
+    if (search) url += '&search=' + encodeURIComponent(search);
+    var res = await apiFetch(url);
+    if (!res || !res.ok) return;
+    var data = await res.json();
+    todosProprietarios = data.results || [];
+    renderTabela(todosProprietarios);
+  }
+
+  function renderTabela(proprietarios) {
+    var tbody = document.getElementById('proprietariosTable');
+    if (proprietarios.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum proprietário encontrado.</td></tr>';
+      return;
+    }
+    var html = '';
+    proprietarios.forEach(function(p) {
+      var data = new Date(p.criado_em).toLocaleDateString('pt-BR');
+      html += '<tr>';
+      html += '<td>' + p.nome_completo + '</td>';
+      html += '<td>' + p.telefone + '</td>';
+      html += '<td>' + (p.aceita_troca ? '<span class="status-badge status-a_venda">Sim</span>' : '<span class="status-badge status-suspenso">Não</span>') + '</td>';
+      html += '<td>' + (p.descricao || '—') + '</td>';
+      html += '<td>' + data + '</td>';
+      html += '<td>';
+      html += '<button class="action-btn" onclick="editarProprietario(' + p.id + ')">Editar</button>';
+      html += '<button class="action-btn danger" onclick="abrirDelete(' + p.id + ')">Excluir</button>';
+      html += '</td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function abrirModal() {
+    document.getElementById('modalTitle').textContent = 'Novo proprietário';
+    document.getElementById('propId').value = '';
+    document.getElementById('propNome').value = '';
+    document.getElementById('propTelefone').value = '';
+    document.getElementById('propDescricao').value = '';
+    document.getElementById('propAceitaTroca').checked = false;
+    document.getElementById('modalError').textContent = '';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function fecharModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function editarProprietario(id) {
+    var prop = null;
+    for (var i = 0; i < todosProprietarios.length; i++) {
+      if (todosProprietarios[i].id === id) { prop = todosProprietarios[i]; break; }
+    }
+    if (!prop) return;
+    document.getElementById('modalTitle').textContent = 'Editar proprietário';
+    document.getElementById('propId').value = prop.id;
+    document.getElementById('propNome').value = prop.nome_completo;
+    document.getElementById('propTelefone').value = prop.telefone;
+    document.getElementById('propDescricao').value = prop.descricao || '';
+    document.getElementById('propAceitaTroca').checked = prop.aceita_troca;
+    document.getElementById('modalError').textContent = '';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  async function salvarProprietario() {
+    var id = document.getElementById('propId').value;
+    var btn = document.getElementById('btnSalvar');
+    var cancelar = document.getElementById('btnCancelar');
+
+    var body = {
+      nome_completo: document.getElementById('propNome').value,
+      telefone: document.getElementById('propTelefone').value,
+      descricao: document.getElementById('propDescricao').value,
+      aceita_troca: document.getElementById('propAceitaTroca').checked,
+    };
+
+    btn.disabled = true;
+    cancelar.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    var url = id ? '/proprietarios/' + id + '/' : '/proprietarios/';
+    var method = id ? 'PATCH' : 'POST';
+
+    var res = await apiFetch(url, { method: method, body: JSON.stringify(body) });
+
+    if (res && res.ok) {
+      fecharModal();
+      await carregarProprietarios();
+      mostrarToast(id ? 'Proprietário atualizado com sucesso.' : 'Proprietário cadastrado com sucesso.');
+    } else {
+      var err = await res.json();
+      var msgs = Object.values(err).flat().join(' ');
+      document.getElementById('modalError').textContent = msgs;
+    }
+
+    btn.disabled = false;
+    cancelar.disabled = false;
+    btn.textContent = 'Salvar';
+  }
+
+  function abrirDelete(id) {
+    deleteId = id;
+    var prop = null;
+    for (var i = 0; i < todosProprietarios.length; i++) {
+      if (todosProprietarios[i].id === id) { prop = todosProprietarios[i]; break; }
+    }
+    if (prop) document.getElementById('deleteNome').textContent = prop.nome_completo;
+    document.getElementById('deleteOverlay').classList.add('open');
+  }
+
+  function fecharDelete() {
+    deleteId = null;
+    document.getElementById('deleteOverlay').classList.remove('open');
+  }
+
+  async function confirmarDelete() {
+    if (!deleteId) return;
+    var btn = document.getElementById('btnConfirmarDelete');
+    btn.disabled = true;
+    btn.textContent = 'Excluindo...';
+    var res = await apiFetch('/proprietarios/' + deleteId + '/', { method: 'DELETE' });
+    if (res && (res.ok || res.status === 204)) {
+      fecharDelete();
+      await carregarProprietarios();
+      mostrarToast('Proprietário excluído com sucesso.');
+    } else {
+      mostrarToast('Não é possível excluir um proprietário com imóveis cadastrados.');
+      fecharDelete();
+    }
+    btn.disabled = false;
+    btn.textContent = 'Excluir';
+  }
+
+  function mostrarToast(msg) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    setTimeout(function() { toast.style.opacity = '0'; }, 3000);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', carregarProprietarios);
+
+  carregarUsername();
+  carregarProprietarios();
+</script>
+
+</body>
+</html>

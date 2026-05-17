@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Imóveis | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/expert-imoveis-logo.png" alt="Expert Imóveis" class="sidebar-logo-img" />
+    </div>
+
+    <nav>
+      <a href="dashboard.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+      <a href="imoveis.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+          <path d="M9 21V12h6v9"/>
+        </svg>
+        Imóveis
+      </a>
+      <a href="proprietarios.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Proprietários
+      </a>
+      <a href="relatorio.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 17H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2h-2"/>
+          <rect x="9" y="13" width="6" height="8" rx="1"/>
+        </svg>
+        Relatório
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        Logado como<br/>
+        <span id="sidebarUsername">—</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sair da conta</button>
+    </div>
+  </aside>
+
+  <!-- Conteúdo principal -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Visão geral do portfólio de imóveis</p>
+    </div>
+
+    <!-- Métricas -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total de imóveis</div>
+        <div class="metric-value" id="metricTotal">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">À venda</div>
+        <div class="metric-value metric-accent" id="metricVenda">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Suspensos</div>
+        <div class="metric-value" id="metricSuspenso">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Vendidos</div>
+        <div class="metric-value" id="metricVendido">—</div>
+      </div>
+    </div>
+
+    <!-- Imóveis recentes -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">Imóveis recentes</span>
+        <a href="imoveis.html" class="btn-secondary">Ver todos</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Endereço</th>
+            <th>Preço</th>
+            <th>Proprietário</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="recentTable">
+          <tr><td colspan="5" class="empty-state">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  checkAuth();
+
+  async function loadDashboard() {
+    // Carrega nome do usuário
+    const meRes = await apiFetch('/me/');
+    if (meRes && meRes.ok) {
+      const me = await meRes.json();
+      document.getElementById('sidebarUsername').textContent = me.username;
+    }
+
+    // Carrega todos os imóveis
+    const res = await apiFetch('/imoveis/?page_size=100');
+    if (!res || !res.ok) return;
+    const data = await res.json();
+    const imoveis = data.results || [];
+
+    // Métricas
+    document.getElementById('metricTotal').textContent = imoveis.length;
+    document.getElementById('metricVenda').textContent = imoveis.filter(i => i.status === 'a_venda').length;
+    document.getElementById('metricSuspenso').textContent = imoveis.filter(i => i.status === 'suspenso').length;
+    document.getElementById('metricVendido').textContent = imoveis.filter(i => i.status === 'vendido').length;
+
+    // Tabela com os 5 mais recentes
+    const recentes = imoveis.slice(0, 5);
+    const tbody = document.getElementById('recentTable');
+
+    if (recentes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum imóvel cadastrado.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = recentes.map(i => `
+      <tr>
+        <td>${i.nome}</td>
+        <td>${i.endereco}</td>
+        <td>R$ ${parseFloat(i.preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+        <td>${i.proprietario_nome}</td>
+        <td><span class="status-badge status-${i.status}">${statusLabel(i.status)}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function statusLabel(status) {
+    const labels = { a_venda: 'À venda', suspenso: 'Suspenso', vendido: 'Vendido' };
+    return labels[status] || status;
+  }
+
+  loadDashboard();
+</script>
+
+</body>
+</html>

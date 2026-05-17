@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Imóveis | Imóveis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    #toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2e2a26;
+      color: #fffdf9;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/expert-imoveis-logo.png" alt="Expert Imóveis" class="sidebar-logo-img" />
+    </div>
+    <nav>
+      <a href="dashboard.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+      <a href="imoveis.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+          <path d="M9 21V12h6v9"/>
+        </svg>
+        Imóveis
+      </a>
+      <a href="proprietarios.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+        Proprietários
+      </a>
+      <a href="relatorio.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 17H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2h-2"/>
+          <rect x="9" y="13" width="6" height="8" rx="1"/>
+        </svg>
+        Relatório
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        Logado como<br/>
+        <span id="sidebarUsername">—</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sair da conta</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Imóveis</h1>
+      <p class="page-sub">Gerencie o portfólio de imóveis cadastrados</p>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input class="search-input" type="text" id="searchInput" placeholder="Buscar por nome ou endereço..." />
+          <select class="filter-select" id="statusFilter">
+            <option value="">Todos os status</option>
+            <option value="a_venda">À venda</option>
+            <option value="suspenso">Suspenso</option>
+            <option value="vendido">Vendido</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="abrirModal()">+ Novo imóvel</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Endereço</th>
+            <th>Preço</th>
+            <th>M²</th>
+            <th>Proprietário</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="imoveisTable">
+          <tr><td colspan="7" class="empty-state">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 class="modal-title" id="modalTitle">Novo imóvel</h2>
+    <div class="modal-form">
+      <input type="hidden" id="imovelId" />
+      <div class="field-wrap">
+        <label class="field-label">Nome</label>
+        <input class="field-input" type="text" id="imovelNome" placeholder="Nome do imóvel" />
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Endereço</label>
+        <input class="field-input" type="text" id="imovelEndereco" placeholder="Endereço completo" />
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="field-wrap">
+          <label class="field-label">Preço (R$)</label>
+          <input class="field-input" type="number" id="imovelPreco" placeholder="0,00" />
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Metros quadrados</label>
+          <input class="field-input" type="number" id="imovelMetros" placeholder="0" />
+        </div>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Proprietário</label>
+        <select class="field-input" id="imovelProprietario">
+          <option value="">Selecionar proprietário</option>
+        </select>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Status</label>
+        <select class="field-input" id="imovelStatus">
+          <option value="a_venda">À venda</option>
+          <option value="suspenso">Suspenso</option>
+          <option value="vendido">Vendido</option>
+        </select>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Fotos</label>
+        <div id="fotosPreview" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;"></div>
+        <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; background:var(--cream-soft); border:1px solid var(--line); border-radius:8px; padding:9px 14px; font-size:13px; color:var(--muted); transition:border-color 0.2s;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Selecionar fotos
+          <input type="file" id="fotosInput" accept="image/*" multiple style="display:none;" onchange="previewFotos(this)" />
+        </label>
+        <p id="fotosStatus" style="font-size:12px; color:var(--muted); margin-top:6px;"></p>
+      </div>
+      <p class="login-error" id="modalError"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btnCancelar" onclick="fecharModal()">Cancelar</button>
+        <button class="btn-primary" id="btnSalvar" onclick="salvarImovel()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Modal confirmação de exclusão -->
+<div class="modal-overlay" id="deleteOverlay">
+  <div class="modal" style="width:380px; text-align:center;">
+    <div style="width:48px; height:48px; background:#FAECE7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#993C1D" stroke-width="1.8">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+        <path d="M10 11v6M14 11v6"/>
+        <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+      </svg>
+    </div>
+    <h2 class="modal-title" style="font-size:18px; margin-bottom:8px;">Excluir imóvel</h2>
+    <p style="font-size:13px; color:#8a7f74; margin-bottom:24px;">Tem certeza que deseja excluir <strong id="deleteNome"></strong>? Esta ação não pode ser desfeita.</p>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn-secondary" onclick="fecharDelete()">Cancelar</button>
+      <button class="btn-primary" id="btnConfirmarDelete" style="background:#993C1D; border-color:#993C1D;" onclick="confirmarDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  checkAuth();
+
+  var CLOUDINARY_CLOUD = 'dg1ph8uyl';
+  var CLOUDINARY_PRESET = 'presetimo';
+  var fotosParaUpload = [];
+
+  let todosImoveis = [];
+
+  async function carregarUsername() {
+    const res = await apiFetch('/me/');
+    if (res && res.ok) {
+      const me = await res.json();
+      document.getElementById('sidebarUsername').textContent = me.username;
+    }
+  }
+
+  async function carregarProprietarios() {
+    const res = await apiFetch('/proprietarios/?page_size=100');
+    if (!res || !res.ok) return;
+    const data = await res.json();
+    const proprietarios = data.results || [];
+    const select = document.getElementById('imovelProprietario');
+    select.innerHTML = '<option value="">Selecionar proprietário</option>';
+    proprietarios.forEach(function(p) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.nome_completo;
+      select.appendChild(opt);
+    });
+  }
+
+  async function carregarImoveis() {
+    const search = document.getElementById('searchInput').value;
+    const status = document.getElementById('statusFilter').value;
+    let url = '/imoveis/?page_size=100';
+    if (search) url += '&search=' + encodeURIComponent(search);
+    if (status) url += '&status=' + status;
+    const res = await apiFetch(url);
+    if (!res || !res.ok) return;
+    const data = await res.json();
+    todosImoveis = data.results || [];
+    renderTabela(todosImoveis);
+  }
+
+  function renderTabela(imoveis) {
+    const tbody = document.getElementById('imoveisTable');
+    if (imoveis.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Nenhum imóvel encontrado.</td></tr>';
+      return;
+    }
+    let html = '';
+    imoveis.forEach(function(i) {
+      html += '<tr>';
+      var thumb = (i.fotos && i.fotos.length > 0)
+        ? '<img src="' + i.fotos[0].foto + '" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line);margin-right:8px;vertical-align:middle;" />'
+        : '<div style="width:40px;height:40px;background:var(--cream);border-radius:6px;border:1px solid var(--line);display:inline-block;margin-right:8px;vertical-align:middle;"></div>';
+      html += '<td style="display:flex;align-items:center;">' + thumb + i.nome + '</td>';
+      html += '<td>' + i.endereco + '</td>';
+      html += '<td>R$ ' + parseFloat(i.preco).toLocaleString('pt-BR', {minimumFractionDigits: 2}) + '</td>';
+      html += '<td>' + parseFloat(i.metros_quadrados).toLocaleString('pt-BR') + ' m²</td>';
+      html += '<td>' + i.proprietario_nome + '</td>';
+      html += '<td><span class="status-badge status-' + i.status + '">' + statusLabel(i.status) + '</span></td>';
+      html += '<td>';
+      html += '<button class="action-btn" onclick="editarImovel(' + i.id + ')">Editar</button>';
+      html += '<button class="action-btn danger" onclick="deletarImovel(' + i.id + ')">Excluir</button>';
+      html += '</td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function statusLabel(status) {
+    var labels = {a_venda: 'À venda', suspenso: 'Suspenso', vendido: 'Vendido'};
+    return labels[status] || status;
+  }
+
+  function abrirModal() {
+    document.getElementById('modalTitle').textContent = 'Novo imóvel';
+    document.getElementById('imovelId').value = '';
+    document.getElementById('imovelNome').value = '';
+    document.getElementById('imovelEndereco').value = '';
+    document.getElementById('imovelPreco').value = '';
+    document.getElementById('imovelMetros').value = '';
+    document.getElementById('imovelProprietario').value = '';
+    document.getElementById('imovelStatus').value = 'a_venda';
+    document.getElementById('modalError').textContent = '';
+    document.getElementById('fotosPreview').innerHTML = '';
+    document.getElementById('fotosInput').value = '';
+    document.getElementById('fotosStatus').textContent = '';
+    fotosParaUpload = [];
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function previewFotos(input) {
+    fotosParaUpload = Array.from(input.files);
+    var preview = document.getElementById('fotosPreview');
+    preview.innerHTML = '';
+    fotosParaUpload.forEach(function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:64px; height:64px; object-fit:cover; border-radius:6px; border:1px solid var(--line);';
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('fotosStatus').textContent = fotosParaUpload.length + ' foto(s) selecionada(s)';
+  }
+
+  async function uploadFotoCloudinary(file) {
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    var res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', {
+      method: 'POST',
+      body: formData
+    });
+    var data = await res.json();
+    return data.secure_url;
+  }
+
+  async function salvarFotos(imovelId) {
+    for (var i = 0; i < fotosParaUpload.length; i++) {
+      document.getElementById('fotosStatus').textContent = 'Enviando foto ' + (i+1) + ' de ' + fotosParaUpload.length + '...';
+      var url = await uploadFotoCloudinary(fotosParaUpload[i]);
+      await apiFetch('/imoveis/' + imovelId + '/fotos/', {
+        method: 'POST',
+        body: JSON.stringify({ foto: url, ordem: i + 1 })
+      });
+    }
+  }
+
+  function fecharModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function editarImovel(id) {
+    var imovel = null;
+    for (var i = 0; i < todosImoveis.length; i++) {
+      if (todosImoveis[i].id === id) { imovel = todosImoveis[i]; break; }
+    }
+    if (!imovel) return;
+    document.getElementById('modalTitle').textContent = 'Editar imóvel';
+    document.getElementById('imovelId').value = imovel.id;
+    document.getElementById('imovelNome').value = imovel.nome;
+    document.getElementById('imovelEndereco').value = imovel.endereco;
+    document.getElementById('imovelPreco').value = imovel.preco;
+    document.getElementById('imovelMetros').value = imovel.metros_quadrados;
+    document.getElementById('imovelProprietario').value = imovel.proprietario;
+    document.getElementById('imovelStatus').value = imovel.status;
+    document.getElementById('modalError').textContent = '';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  async function salvarImovel() {
+    var id = document.getElementById('imovelId').value;
+    var btn = document.getElementById('btnSalvar');
+    var cancelar = document.getElementById('btnCancelar');
+
+    var body = {
+      nome: document.getElementById('imovelNome').value,
+      endereco: document.getElementById('imovelEndereco').value,
+      preco: document.getElementById('imovelPreco').value,
+      metros_quadrados: document.getElementById('imovelMetros').value,
+      proprietario: document.getElementById('imovelProprietario').value,
+      status: document.getElementById('imovelStatus').value,
+    };
+
+    btn.disabled = true;
+    cancelar.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    var url = id ? '/imoveis/' + id + '/' : '/imoveis/';
+    var method = id ? 'PATCH' : 'POST';
+
+    var res = await apiFetch(url, { method: method, body: JSON.stringify(body) });
+
+    if (res && res.ok) {
+      var imovelSalvo = await res.json();
+      if (fotosParaUpload.length > 0) {
+        btn.textContent = 'Enviando fotos...';
+        await salvarFotos(id || imovelSalvo.id);
+      }
+      fecharModal();
+      await carregarImoveis();
+      mostrarToast(id ? 'Imóvel atualizado com sucesso.' : 'Imóvel cadastrado com sucesso.');
+    } else {
+      var err = await res.json();
+      var msgs = Object.values(err).flat().join(' ');
+      document.getElementById('modalError').textContent = msgs;
+    }
+
+    btn.disabled = false;
+    cancelar.disabled = false;
+    btn.textContent = 'Salvar';
+  }
+
+  function mostrarToast(msg) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    setTimeout(function() { toast.style.opacity = '0'; }, 3000);
+  }
+
+  var deleteId = null;
+
+  function deletarImovel(id) {
+    deleteId = id;
+    var imovel = null;
+    for (var i = 0; i < todosImoveis.length; i++) {
+      if (todosImoveis[i].id === id) { imovel = todosImoveis[i]; break; }
+    }
+    if (imovel) document.getElementById('deleteNome').textContent = imovel.nome;
+    document.getElementById('deleteOverlay').classList.add('open');
+  }
+
+  function fecharDelete() {
+    deleteId = null;
+    document.getElementById('deleteOverlay').classList.remove('open');
+  }
+
+  async function confirmarDelete() {
+    if (!deleteId) return;
+    var btn = document.getElementById('btnConfirmarDelete');
+    btn.disabled = true;
+    btn.textContent = 'Excluindo...';
+    var res = await apiFetch('/imoveis/' + deleteId + '/', {method: 'DELETE'});
+    if (res && (res.ok || res.status === 204)) {
+      fecharDelete();
+      await carregarImoveis();
+      mostrarToast('Imóvel excluído com sucesso.');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Excluir';
+  }
+
+  document.getElementById('searchInput').addEventListener('input', carregarImoveis);
+  document.getElementById('statusFilter').addEventListener('change', carregarImoveis);
+
+  carregarUsername();
+  carregarProprietarios();
+  carregarImoveis();
+</script>
+
+</body>
+</html>
