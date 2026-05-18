@@ -1,6 +1,13 @@
 # Expert Imóveis - Sistema de Gestão
 
-Sistema web interno para gestão de imóveis e proprietários, desenvolvido para a Expert Imóveis. Permite que corretores cadastrem, acompanhem e gerenciem o portfólio de imóveis, com sincronização automática com Google Sheets e upload de fotos via Cloudinary.
+Sistema web interno para gestão de imóveis e proprietários, desenvolvido para a Expert Imóveis de Novo Hamburgo/RS. Permite que corretores cadastrem, acompanhem e gerenciem o portfólio de imóveis, com sincronização automática com Google Sheets e upload de fotos via Cloudinary.
+
+## Demo
+
+| | URL |
+|--|--|
+| **Frontend** | [sistema-imobiliario.netlify.app](https://sistema-imobiliario.netlify.app) |
+| **API Docs** | [sistema-imobiliario-fv6g.onrender.com/api/docs](https://sistema-imobiliario-fv6g.onrender.com/api/docs/) |
 
 ---
 
@@ -15,7 +22,7 @@ Sistema web interno para gestão de imóveis e proprietários, desenvolvido para
 ### Imóveis
 ![Imóveis](docs/screenshots/imoveis.png)
 
-### Tabela de imóveis cadastrados
+### Tabela com imóveis cadastrados
 ![Tabela](docs/screenshots/tabela.png)
 
 ### Proprietários
@@ -39,6 +46,10 @@ Sistema web interno para gestão de imóveis e proprietários, desenvolvido para
 **Frontend**
 - HTML, CSS e JavaScript puro
 - Consumo da API REST via Fetch API
+
+**Deploy**
+- Backend: Render
+- Frontend: Netlify
 
 ---
 
@@ -85,6 +96,7 @@ sistema-imobiliario/
 │   └── screenshots/
 ├── credentials.json       # Google Sheets (não commitado)
 ├── .env                   # Variáveis de ambiente (não commitado)
+├── netlify.toml
 ├── Dockerfile
 ├── requirements.txt
 └── manage.py
@@ -199,6 +211,7 @@ docker run -p 8000:8000 --env-file .env sistema-imobiliario
 | `SECRET_KEY` | Chave secreta do Django |
 | `DEBUG` | True em desenvolvimento, False em produção |
 | `DATABASE_URL` | URL de conexão com o banco PostgreSQL |
+| `ALLOWED_HOSTS` | Hosts permitidos separados por vírgula |
 | `GOOGLE_CREDENTIALS_PATH` | Caminho para o credentials.json |
 | `GOOGLE_SHEET_ID` | ID da planilha Google Sheets |
 

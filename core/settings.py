@@ -38,6 +38,7 @@ GOOGLE_SHEET_ID = '1iWf-gC6y0FMaQkQMXDgem7Dzj_9FAWVwRGh6d1CPE3c'
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5500',
     'http://localhost:5500',
+    'https://sistema-imobiliario.netlify.app',
 ]
 
 
