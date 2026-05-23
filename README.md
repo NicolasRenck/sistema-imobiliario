@@ -67,6 +67,30 @@ Sistema web interno para gestão de imóveis e proprietários, desenvolvido para
 
 ---
 
+## Testes
+
+O projeto conta com testes automatizados cobrindo as camadas de **Model** e **API**.
+
+**O que é testado:**
+- Criação e validação dos models
+- Campos opcionais e valores default
+- Todos os endpoints REST (GET, POST, PATCH, DELETE)
+- Autenticação — requisições sem token retornam 401
+
+**Como rodar os testes:**
+
+```bash
+python manage.py test app
+```
+
+Resultado esperado:
+```
+Ran 11 tests in 5.168s
+OK
+```
+
+---
+
 ## Estrutura do projeto
 
 ```
@@ -76,6 +100,7 @@ sistema-imobiliario/
 │   ├── serializers.py
 │   ├── views.py
 │   ├── urls.py
+│   ├── tests.py           # Testes automatizados
 │   └── sheets.py          # Integração Google Sheets
 ├── core/
 │   ├── settings.py
